@@ -2,33 +2,27 @@ syntax = "proto3";
 
 package server.v1;
 
-option go_package = "gen/proto/go/server/serverv1";
+option go_package = "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1;serverv1";
 
-// GetConfigRequest is a request message to get the current configuration and sources/mappings for the given attributes.
-message GetConfigRequest {
+// ListConfigRequest is a request message to get the current configuration mappings for the given attributes.
+message ListConfigRequest {
     // (required) Attributes are key=value pairs that are used to determine which configurations
     // and sources to include in the response.
     map<string, string> local_attributes = 1;
 }
 
-// GetConfigResponse is the server->collector response message that contains the
-// id or attribute based configuration.
+// GetConfigResponse is a response message that contains
+// a Configuration mapping (source, attributes)
 message GetConfigResponse {
-    // The full configuration for the collector.
-    string content = 1;
-
-    // hash is used to determine if the configuration has changed, and avoid
-    // sending the full configuration if it has not.
-    optional string hash = 2;
-
-    // not_modified is set to true if the configuration has not changed and
-    // the client should not update its configuration from the response.
-    bool not_modified = 3;
+    // source defines where a config is loaded from
+    string source = 1;
+    // Attributes are a key=value used to determined when a config should be used
+    map<string, string> local_attributes = 2;
 }
 
 // ConfigManager is used to get, add and remove config mapping for the collectors to fetch
 service ConfigManager {
-    rpc GetConfig(GetConfigRequest) returns (GetConfigResponse) {
+    rpc ListConfigs(ListConfigRequest) returns (GetConfigResponse) {
         option idempotency_level = NO_SIDE_EFFECTS;
     }
 }

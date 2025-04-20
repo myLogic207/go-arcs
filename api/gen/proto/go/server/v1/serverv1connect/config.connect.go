@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	serverv1 "gen/proto/go/server/serverv1"
+	v1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
 	http "net/http"
 	strings "strings"
 )
@@ -33,19 +33,20 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// ConfigManagerGetConfigProcedure is the fully-qualified name of the ConfigManager's GetConfig RPC.
-	ConfigManagerGetConfigProcedure = "/server.v1.ConfigManager/GetConfig"
+	// ConfigManagerListConfigsProcedure is the fully-qualified name of the ConfigManager's ListConfigs
+	// RPC.
+	ConfigManagerListConfigsProcedure = "/server.v1.ConfigManager/ListConfigs"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	configManagerServiceDescriptor         = serverv1.File_server_v1_config_proto.Services().ByName("ConfigManager")
-	configManagerGetConfigMethodDescriptor = configManagerServiceDescriptor.Methods().ByName("GetConfig")
+	configManagerServiceDescriptor           = v1.File_server_v1_config_proto.Services().ByName("ConfigManager")
+	configManagerListConfigsMethodDescriptor = configManagerServiceDescriptor.Methods().ByName("ListConfigs")
 )
 
 // ConfigManagerClient is a client for the server.v1.ConfigManager service.
 type ConfigManagerClient interface {
-	GetConfig(context.Context, *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error)
+	ListConfigs(context.Context, *connect.Request[v1.ListConfigRequest]) (*connect.Response[v1.GetConfigResponse], error)
 }
 
 // NewConfigManagerClient constructs a client for the server.v1.ConfigManager service. By default,
@@ -58,10 +59,10 @@ type ConfigManagerClient interface {
 func NewConfigManagerClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ConfigManagerClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &configManagerClient{
-		getConfig: connect.NewClient[serverv1.GetConfigRequest, serverv1.GetConfigResponse](
+		listConfigs: connect.NewClient[v1.ListConfigRequest, v1.GetConfigResponse](
 			httpClient,
-			baseURL+ConfigManagerGetConfigProcedure,
-			connect.WithSchema(configManagerGetConfigMethodDescriptor),
+			baseURL+ConfigManagerListConfigsProcedure,
+			connect.WithSchema(configManagerListConfigsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -70,17 +71,17 @@ func NewConfigManagerClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // configManagerClient implements ConfigManagerClient.
 type configManagerClient struct {
-	getConfig *connect.Client[serverv1.GetConfigRequest, serverv1.GetConfigResponse]
+	listConfigs *connect.Client[v1.ListConfigRequest, v1.GetConfigResponse]
 }
 
-// GetConfig calls server.v1.ConfigManager.GetConfig.
-func (c *configManagerClient) GetConfig(ctx context.Context, req *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error) {
-	return c.getConfig.CallUnary(ctx, req)
+// ListConfigs calls server.v1.ConfigManager.ListConfigs.
+func (c *configManagerClient) ListConfigs(ctx context.Context, req *connect.Request[v1.ListConfigRequest]) (*connect.Response[v1.GetConfigResponse], error) {
+	return c.listConfigs.CallUnary(ctx, req)
 }
 
 // ConfigManagerHandler is an implementation of the server.v1.ConfigManager service.
 type ConfigManagerHandler interface {
-	GetConfig(context.Context, *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error)
+	ListConfigs(context.Context, *connect.Request[v1.ListConfigRequest]) (*connect.Response[v1.GetConfigResponse], error)
 }
 
 // NewConfigManagerHandler builds an HTTP handler from the service implementation. It returns the
@@ -89,17 +90,17 @@ type ConfigManagerHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewConfigManagerHandler(svc ConfigManagerHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	configManagerGetConfigHandler := connect.NewUnaryHandler(
-		ConfigManagerGetConfigProcedure,
-		svc.GetConfig,
-		connect.WithSchema(configManagerGetConfigMethodDescriptor),
+	configManagerListConfigsHandler := connect.NewUnaryHandler(
+		ConfigManagerListConfigsProcedure,
+		svc.ListConfigs,
+		connect.WithSchema(configManagerListConfigsMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/server.v1.ConfigManager/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case ConfigManagerGetConfigProcedure:
-			configManagerGetConfigHandler.ServeHTTP(w, r)
+		case ConfigManagerListConfigsProcedure:
+			configManagerListConfigsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,6 +110,6 @@ func NewConfigManagerHandler(svc ConfigManagerHandler, opts ...connect.HandlerOp
 // UnimplementedConfigManagerHandler returns CodeUnimplemented from all methods.
 type UnimplementedConfigManagerHandler struct{}
 
-func (UnimplementedConfigManagerHandler) GetConfig(context.Context, *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("server.v1.ConfigManager.GetConfig is not implemented"))
+func (UnimplementedConfigManagerHandler) ListConfigs(context.Context, *connect.Request[v1.ListConfigRequest]) (*connect.Response[v1.GetConfigResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("server.v1.ConfigManager.ListConfigs is not implemented"))
 }
