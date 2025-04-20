@@ -2,13 +2,13 @@
 //
 // Source: server/v1/config.proto
 
-package v1connect
+package serverv1connect
 
 import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
+	serverv1 "gen/proto/go/server/serverv1"
 	http "net/http"
 	strings "strings"
 )
@@ -39,13 +39,13 @@ const (
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	configManagerServiceDescriptor         = v1.File_server_v1_config_proto.Services().ByName("ConfigManager")
+	configManagerServiceDescriptor         = serverv1.File_server_v1_config_proto.Services().ByName("ConfigManager")
 	configManagerGetConfigMethodDescriptor = configManagerServiceDescriptor.Methods().ByName("GetConfig")
 )
 
 // ConfigManagerClient is a client for the server.v1.ConfigManager service.
 type ConfigManagerClient interface {
-	GetConfig(context.Context, *connect.Request[v1.GetConfigRequest]) (*connect.Response[v1.GetConfigResponse], error)
+	GetConfig(context.Context, *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error)
 }
 
 // NewConfigManagerClient constructs a client for the server.v1.ConfigManager service. By default,
@@ -58,7 +58,7 @@ type ConfigManagerClient interface {
 func NewConfigManagerClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ConfigManagerClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &configManagerClient{
-		getConfig: connect.NewClient[v1.GetConfigRequest, v1.GetConfigResponse](
+		getConfig: connect.NewClient[serverv1.GetConfigRequest, serverv1.GetConfigResponse](
 			httpClient,
 			baseURL+ConfigManagerGetConfigProcedure,
 			connect.WithSchema(configManagerGetConfigMethodDescriptor),
@@ -70,17 +70,17 @@ func NewConfigManagerClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // configManagerClient implements ConfigManagerClient.
 type configManagerClient struct {
-	getConfig *connect.Client[v1.GetConfigRequest, v1.GetConfigResponse]
+	getConfig *connect.Client[serverv1.GetConfigRequest, serverv1.GetConfigResponse]
 }
 
 // GetConfig calls server.v1.ConfigManager.GetConfig.
-func (c *configManagerClient) GetConfig(ctx context.Context, req *connect.Request[v1.GetConfigRequest]) (*connect.Response[v1.GetConfigResponse], error) {
+func (c *configManagerClient) GetConfig(ctx context.Context, req *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error) {
 	return c.getConfig.CallUnary(ctx, req)
 }
 
 // ConfigManagerHandler is an implementation of the server.v1.ConfigManager service.
 type ConfigManagerHandler interface {
-	GetConfig(context.Context, *connect.Request[v1.GetConfigRequest]) (*connect.Response[v1.GetConfigResponse], error)
+	GetConfig(context.Context, *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error)
 }
 
 // NewConfigManagerHandler builds an HTTP handler from the service implementation. It returns the
@@ -109,6 +109,6 @@ func NewConfigManagerHandler(svc ConfigManagerHandler, opts ...connect.HandlerOp
 // UnimplementedConfigManagerHandler returns CodeUnimplemented from all methods.
 type UnimplementedConfigManagerHandler struct{}
 
-func (UnimplementedConfigManagerHandler) GetConfig(context.Context, *connect.Request[v1.GetConfigRequest]) (*connect.Response[v1.GetConfigResponse], error) {
+func (UnimplementedConfigManagerHandler) GetConfig(context.Context, *connect.Request[serverv1.GetConfigRequest]) (*connect.Response[serverv1.GetConfigResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("server.v1.ConfigManager.GetConfig is not implemented"))
 }

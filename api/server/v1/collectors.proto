@@ -4,7 +4,7 @@ package server.v1;
 
 import "server/v1/config.proto";
 
-option go_package = "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1";
+option go_package = "gen/proto/go/server/serverv1";
 
 // GetListRequest is the request message to get a list of registered collectors optionally by attributes
 message GetListRequest {
