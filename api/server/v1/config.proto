@@ -4,10 +4,8 @@ package server.v1;
 
 option go_package = "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1;serverv1";
 
-// ListConfigRequest is a request message to get the current configuration mappings for the given attributes.
-message ListConfigRequest {
-    // (required) Attributes are key=value pairs that are used to determine which configurations
-    // and sources to include in the response.
+// GetListRequest is the request message to get a list of registered objects by attributes
+message ListRequest {
     map<string, string> local_attributes = 1;
 }
 
@@ -22,7 +20,7 @@ message GetConfigResponse {
 
 // ConfigManager is used to get, add and remove config mapping for the collectors to fetch
 service ConfigManager {
-    rpc ListConfigs(ListConfigRequest) returns (GetConfigResponse) {
+    rpc ListConfigs(ListRequest) returns (stream GetConfigResponse) {
         option idempotency_level = NO_SIDE_EFFECTS;
     }
 }

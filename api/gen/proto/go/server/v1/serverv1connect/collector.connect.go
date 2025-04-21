@@ -51,9 +51,9 @@ var (
 // CollectorManagerClient is a client for the server.v1.CollectorManager service.
 type CollectorManagerClient interface {
 	// GetConfig returns the collector's configuration.
-	ListCollectors(context.Context, *connect.Request[v1.GetListRequest]) (*connect.ServerStreamForClient[v1.GetCollectorsResponse], error)
+	ListCollectors(context.Context, *connect.Request[v1.ListRequest]) (*connect.ServerStreamForClient[v1.GetCollectorsResponse], error)
 	// GetConfig returns the collector's configuration.
-	GetCollector(context.Context, *connect.Request[v1.GetCollectorRequest]) (*connect.ServerStreamForClient[v1.GetConfigResponse], error)
+	GetCollector(context.Context, *connect.Request[v1.GetCollectorRequest]) (*connect.Response[v1.GetCollectorsResponse], error)
 }
 
 // NewCollectorManagerClient constructs a client for the server.v1.CollectorManager service. By
@@ -66,14 +66,14 @@ type CollectorManagerClient interface {
 func NewCollectorManagerClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CollectorManagerClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &collectorManagerClient{
-		listCollectors: connect.NewClient[v1.GetListRequest, v1.GetCollectorsResponse](
+		listCollectors: connect.NewClient[v1.ListRequest, v1.GetCollectorsResponse](
 			httpClient,
 			baseURL+CollectorManagerListCollectorsProcedure,
 			connect.WithSchema(collectorManagerListCollectorsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		getCollector: connect.NewClient[v1.GetCollectorRequest, v1.GetConfigResponse](
+		getCollector: connect.NewClient[v1.GetCollectorRequest, v1.GetCollectorsResponse](
 			httpClient,
 			baseURL+CollectorManagerGetCollectorProcedure,
 			connect.WithSchema(collectorManagerGetCollectorMethodDescriptor),
@@ -85,26 +85,26 @@ func NewCollectorManagerClient(httpClient connect.HTTPClient, baseURL string, op
 
 // collectorManagerClient implements CollectorManagerClient.
 type collectorManagerClient struct {
-	listCollectors *connect.Client[v1.GetListRequest, v1.GetCollectorsResponse]
-	getCollector   *connect.Client[v1.GetCollectorRequest, v1.GetConfigResponse]
+	listCollectors *connect.Client[v1.ListRequest, v1.GetCollectorsResponse]
+	getCollector   *connect.Client[v1.GetCollectorRequest, v1.GetCollectorsResponse]
 }
 
 // ListCollectors calls server.v1.CollectorManager.ListCollectors.
-func (c *collectorManagerClient) ListCollectors(ctx context.Context, req *connect.Request[v1.GetListRequest]) (*connect.ServerStreamForClient[v1.GetCollectorsResponse], error) {
+func (c *collectorManagerClient) ListCollectors(ctx context.Context, req *connect.Request[v1.ListRequest]) (*connect.ServerStreamForClient[v1.GetCollectorsResponse], error) {
 	return c.listCollectors.CallServerStream(ctx, req)
 }
 
 // GetCollector calls server.v1.CollectorManager.GetCollector.
-func (c *collectorManagerClient) GetCollector(ctx context.Context, req *connect.Request[v1.GetCollectorRequest]) (*connect.ServerStreamForClient[v1.GetConfigResponse], error) {
-	return c.getCollector.CallServerStream(ctx, req)
+func (c *collectorManagerClient) GetCollector(ctx context.Context, req *connect.Request[v1.GetCollectorRequest]) (*connect.Response[v1.GetCollectorsResponse], error) {
+	return c.getCollector.CallUnary(ctx, req)
 }
 
 // CollectorManagerHandler is an implementation of the server.v1.CollectorManager service.
 type CollectorManagerHandler interface {
 	// GetConfig returns the collector's configuration.
-	ListCollectors(context.Context, *connect.Request[v1.GetListRequest], *connect.ServerStream[v1.GetCollectorsResponse]) error
+	ListCollectors(context.Context, *connect.Request[v1.ListRequest], *connect.ServerStream[v1.GetCollectorsResponse]) error
 	// GetConfig returns the collector's configuration.
-	GetCollector(context.Context, *connect.Request[v1.GetCollectorRequest], *connect.ServerStream[v1.GetConfigResponse]) error
+	GetCollector(context.Context, *connect.Request[v1.GetCollectorRequest]) (*connect.Response[v1.GetCollectorsResponse], error)
 }
 
 // NewCollectorManagerHandler builds an HTTP handler from the service implementation. It returns the
@@ -120,7 +120,7 @@ func NewCollectorManagerHandler(svc CollectorManagerHandler, opts ...connect.Han
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	collectorManagerGetCollectorHandler := connect.NewServerStreamHandler(
+	collectorManagerGetCollectorHandler := connect.NewUnaryHandler(
 		CollectorManagerGetCollectorProcedure,
 		svc.GetCollector,
 		connect.WithSchema(collectorManagerGetCollectorMethodDescriptor),
@@ -142,10 +142,10 @@ func NewCollectorManagerHandler(svc CollectorManagerHandler, opts ...connect.Han
 // UnimplementedCollectorManagerHandler returns CodeUnimplemented from all methods.
 type UnimplementedCollectorManagerHandler struct{}
 
-func (UnimplementedCollectorManagerHandler) ListCollectors(context.Context, *connect.Request[v1.GetListRequest], *connect.ServerStream[v1.GetCollectorsResponse]) error {
+func (UnimplementedCollectorManagerHandler) ListCollectors(context.Context, *connect.Request[v1.ListRequest], *connect.ServerStream[v1.GetCollectorsResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("server.v1.CollectorManager.ListCollectors is not implemented"))
 }
 
-func (UnimplementedCollectorManagerHandler) GetCollector(context.Context, *connect.Request[v1.GetCollectorRequest], *connect.ServerStream[v1.GetConfigResponse]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("server.v1.CollectorManager.GetCollector is not implemented"))
+func (UnimplementedCollectorManagerHandler) GetCollector(context.Context, *connect.Request[v1.GetCollectorRequest]) (*connect.Response[v1.GetCollectorsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("server.v1.CollectorManager.GetCollector is not implemented"))
 }

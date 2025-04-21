@@ -6,22 +6,16 @@ import "server/v1/config.proto";
 
 option go_package = "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1;serverv1";
 
-// GetListRequest is the request message to get a list of registered collectors optionally by attributes
-message GetListRequest {
-    // Specify attributes to filter the registered collectors
-    map<string, string> local_attributes = 1;
-}
-
 // GetCollectorsResponse is the response to get a list of all matching collectors
 message GetCollectorsResponse {
     // The ID of the registered collector.
-    optional string id = 1;
+    string id = 1;
 
     // The local attributes the collector used to self-identify on registration.
     map<string, string> local_attributes = 2;
 
     // The name of the collector
-    optional string name = 3;
+    string name = 3;
 }
 
 // Collector request message to get collectors matching the id or attributes
@@ -36,12 +30,12 @@ message GetCollectorRequest {
 // CollectorManager is used to get information about the registered collectors
 service CollectorManager {
     // GetConfig returns the collector's configuration.
-    rpc ListCollectors (GetListRequest) returns (stream GetCollectorsResponse) {
+    rpc ListCollectors (ListRequest) returns (stream GetCollectorsResponse) {
         option idempotency_level = NO_SIDE_EFFECTS;
     };
 
     // GetConfig returns the collector's configuration.
-    rpc GetCollector (GetCollectorRequest) returns (stream GetConfigResponse) {
+    rpc GetCollector (GetCollectorRequest) returns (GetCollectorsResponse) {
         option idempotency_level = NO_SIDE_EFFECTS;
     };
 }
