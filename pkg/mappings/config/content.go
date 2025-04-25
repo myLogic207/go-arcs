@@ -6,12 +6,44 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 var (
+	ErrDirOpen  = errors.New("failed to open directory")
 	ErrFileOpen = errors.New("failed to open file")
 	ErrFileRead = errors.New("failed to read file")
 )
+
+// check if the given path is a file or directory,
+// always returns a slice of absolute paths
+func GetFileOrFiles(name string) ([]string, error) {
+	abs, err := filepath.Abs(name)
+	if err != nil {
+		return nil, err
+	}
+
+	stat, err := os.Stat(abs)
+	if err != nil {
+		return nil, err
+	}
+	if !stat.IsDir() {
+		return []string{abs}, nil
+	}
+	entries, err := os.ReadDir(abs)
+	if err != nil {
+		return nil, err
+	}
+	names := []string{}
+	for _, ent := range entries {
+		if ent.IsDir() {
+			continue
+		}
+		names = append(names, filepath.Join(abs, ent.Name()))
+	}
+
+	return names, nil
+}
 
 func fileHandler(ctx context.Context, path string) ([]byte, error) {
 	file, err := os.Open(path)
@@ -24,7 +56,7 @@ func fileHandler(ctx context.Context, path string) ([]byte, error) {
 		return nil, errors.Join(ErrFileRead, err)
 	}
 
-	return content, nil
+	return content, ctx.Err()
 }
 
 func ftpHandler(ctx context.Context, path string) ([]byte, error) {
