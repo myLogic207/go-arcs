@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"hash/fnv"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type ObjectStore[t Object] map[string]t
@@ -16,6 +18,8 @@ type Store[t Object] interface {
 	// add an object with attributes attributes apply
 	// returns a hash of the source as unique id
 	Set(context.Context, t) (string, error)
+	// Loads a list of objects into the store using the set Method in parallel
+	Load(context.Context, []t) ([]string, error)
 	// removes a config by its registered id
 	Remove(context.Context, string) (bool, error)
 	// returns object based on id, nil if non found
@@ -50,6 +54,24 @@ func NewStore[t Object](
 		objects:  objects,
 		mappings: mappings,
 	}
+}
+
+func (s *store[t]) Load(
+	ctx context.Context,
+	objects []t,
+) ([]string, error) {
+	ids := make([]string, len(objects))
+	eg, eCtx := errgroup.WithContext(ctx)
+	for i, object := range objects {
+		i, object := i, object
+		eg.Go(func() error {
+			id, err := s.Set(eCtx, object)
+			ids[i] = id
+			return err
+		})
+	}
+
+	return ids, eg.Wait()
 }
 
 func (s *store[t]) Set(

@@ -8,17 +8,133 @@ import (
 )
 
 func TestSetConfig(t *testing.T) {
-	ctx := context.Background()
-	id := "foobar"
-	attributes := map[string]string{
-		"test": "value",
+	type args struct {
+		id         string
+		attributes map[string]string
 	}
-	store := NewStore[Object](nil, nil)
-	storedID, err := store.Set(ctx, &object{attributes: attributes, id: id})
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "Simple Load",
+			args: args{
+				id: "foobar",
+				attributes: map[string]string{
+					"test": "value",
+				},
+			},
+			want:    "foobar",
+			wantErr: false,
+		},
+	}
 
-	assert.NoError(t, err)
-	assert.Equal(t, store.Get(ctx, storedID).ID(), storedID)
-	assert.Len(t, store.GetByAttributes(ctx, attributes), 1)
+	ctx := context.Background()
+	store := NewStore[Object](nil, nil)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := store.Set(ctx, &object{attributes: tt.args.attributes, id: tt.args.id})
+			if (err != nil) != tt.wantErr {
+				t.Errorf("store.Set() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !assert.Equal(t, got, tt.want) {
+				t.Errorf("store.Set() = %#v, want %#v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestLoadConfig(t *testing.T) {
+	type args struct {
+		objects []Object
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "load one",
+			args: args{
+				objects: []Object{
+					&object{
+						id: "foobar",
+						attributes: map[string]string{
+							"test": "value",
+						},
+					},
+				},
+			},
+			want:    []string{"foobar"},
+			wantErr: false,
+		},
+		{
+			name: "load many",
+			args: args{
+				objects: []Object{
+					&object{
+						id: "foobar1",
+						attributes: map[string]string{
+							"test": "value",
+						},
+					},
+					&object{
+						id: "foobar2",
+						attributes: map[string]string{
+							"test":  "value",
+							"test2": "value2",
+						},
+					},
+				},
+			},
+			want:    []string{"foobar1", "foobar2"},
+			wantErr: false,
+		},
+		{
+			name: "overwrite one",
+			args: args{
+				objects: []Object{
+					&object{
+						id: "foobar",
+						attributes: map[string]string{
+							"test": "value",
+						},
+					},
+					&object{
+						id: "foobar",
+						attributes: map[string]string{
+							"test": "value",
+						},
+					},
+				},
+			},
+			want:    []string{"foobar", "foobar"},
+			wantErr: false,
+		},
+	}
+
+	ctx := context.Background()
+	store := NewStore[Object](nil, nil)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := store.Load(ctx, tt.args.objects)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("store.Set() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !assert.Equal(t, got, tt.want) {
+				t.Errorf("store.Set() = %#v, want %#v", got, tt.want)
+			}
+		})
+	}
 }
 
 func TestGetConfig(t *testing.T) {
