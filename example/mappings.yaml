@@ -1,0 +1,3 @@
+- source: "file://./remote.alloy"
+  attributes:
+    test: value

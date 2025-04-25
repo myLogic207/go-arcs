@@ -1,0 +1,5 @@
+prometheus.exporter.unix "default" {
+}
+
+loki.echo "hello" {
+}
