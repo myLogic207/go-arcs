@@ -20,9 +20,10 @@ const (
 var (
 	ErrProtoUnknown = errors.New("could not identify protocol")
 	ErrProtoParts   = errors.New("source malformed, make sure source looks like [proto]://[source]")
+	ErrGetContent   = errors.New("could not get config content")
 )
 
-type ContentHandler func(context.Context, string) (string, error)
+type ContentHandler func(context.Context, string) ([]byte, error)
 
 type Config interface {
 	store.Object
@@ -30,16 +31,15 @@ type Config interface {
 	Source() string
 }
 
-type ConfigStore interface {
+type Store interface {
 	store.Store[Config]
 }
 
 type config struct {
-	id             string
-	protocol       Protocol
-	path           string
-	attributes     map[string]string
-	contentHandler ContentHandler
+	id         string
+	protocol   Protocol
+	path       string
+	attributes map[string]string
 }
 
 func checkProto(proto string) (Protocol, error) {
@@ -77,14 +77,12 @@ func New(source string, attributes map[string]string) (Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	contentHandler := getContentHandler(protocol)
 
 	return &config{
 		id,
 		protocol,
 		path,
 		attributes,
-		contentHandler,
 	}, nil
 }
 
@@ -98,31 +96,12 @@ func (c *config) Attributes() map[string]string {
 }
 
 func (c *config) Content(ctx context.Context) (string, error) {
-	var handler func(context.Context, string) (string, error)
-	switch c.protocol {
-	case FileProto:
-		handler = fileHandler
-	case FTPProto:
-		handler = ftpHandler
-	case HTTPProto:
-		handler = httpHandler
+	contentHandler := getContentHandler(c.protocol)
+	content, err := contentHandler(ctx, c.path)
+	if err != nil {
+		return "", errors.Join(ErrGetContent, err)
 	}
-	if nil == handler {
-		return "", errors.New("")
-	}
-	return handler(ctx, c.path)
-}
-
-func fileHandler(ctx context.Context, path string) (string, error) {
-	return "", nil
-}
-
-func ftpHandler(ctx context.Context, path string) (string, error) {
-	return "", nil
-}
-
-func httpHandler(ctx context.Context, path string) (string, error) {
-	return "", nil
+	return string(content), nil
 }
 
 func (c *config) Source() string {
