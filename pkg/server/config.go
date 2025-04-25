@@ -20,9 +20,9 @@ func (s *Server) GetConfig(
 	id := req.Msg.GetId()
 	currentHash := req.Msg.GetHash()
 	attributes := req.Msg.GetLocalAttributes()
-
-	log.Printf("Client %v send configuration request %+v", id, attributes)
 	configs := s.configs.GetByAttributes(ctx, attributes)
+
+	log.Printf("Client %v send configuration request %+v, found %v matching configs", id, attributes, len(configs))
 
 	eg, getCtx := errgroup.WithContext(ctx)
 	results := make([]string, len(configs))
@@ -43,7 +43,7 @@ func (s *Server) GetConfig(
 	if err := eg.Wait(); err != nil {
 		return nil, err
 	}
-	resolvedConfig := strings.Join(results, "\n")
+	resolvedConfig := strings.Join(results, " ")
 	newHash := store.Hash([]byte(resolvedConfig))
 	// globalStorage.Set(collector.id, resolvedConfig.String())
 	return connect.NewResponse(&collectorv1.GetConfigResponse{

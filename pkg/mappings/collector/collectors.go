@@ -11,7 +11,7 @@ type Collector interface {
 	SetHash(string)
 }
 
-type CollectorStore interface {
+type Store interface {
 	store.Store[Collector]
 }
 
