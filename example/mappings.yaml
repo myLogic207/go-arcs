@@ -1,3 +1,6 @@
 - source: "file://remote.alloy"
   attributes:
-    test: value
+    test: file
+- source: "https://git.mylogic.dev/homelab/go-arcs/raw/branch/devel/example/remote.alloy"
+  attributes:
+    test: http

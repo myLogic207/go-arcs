@@ -26,7 +26,7 @@ services:
      - --storage.path=/var/lib/alloy/data
      - /etc/alloy/config.alloy
    volumes:
-     - ./conf.alloy:/etc/alloy/config.alloy
+     - ./conf.remote.alloy:/etc/alloy/config.alloy
    networks:
      - testnet
 
