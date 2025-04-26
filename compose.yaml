@@ -1,0 +1,16 @@
+name: arcs-test
+
+services:
+  arcs:
+    image: git.mylogic.dev/homelab/go-arcs/server:latest
+    build:
+      context: .
+      dockerfile: dockerfile.server
+    hostname: arcs
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./example/mappings.yaml:/tmp/mappings.yaml
+      - ./example/remote.alloy:/tmp/remote.alloy
+    networks:
+      - testnet

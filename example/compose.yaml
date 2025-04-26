@@ -1,0 +1,48 @@
+name: arcs-test
+
+# includes compose to build from source
+include:
+  - ../compose.yaml
+
+services:
+  # arcs:
+  #   image: git.mylogic.dev/homelab/go-arcs/server:latest
+  #   hostname: arcs
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./mappings.yaml:/tmp/mappings.yaml
+  #     - ./remote.alloy:/tmp/remote.alloy
+  #   networks:
+  #     - testnet
+
+  alloy:
+   image: grafana/alloy:v1.8.2
+   ports:
+    - "12345:12345"
+   command:
+     - run
+     - --server.http.listen-addr=0.0.0.0:12345
+     - --storage.path=/var/lib/alloy/data
+     - /etc/alloy/config.alloy
+   volumes:
+     - ./conf.alloy:/etc/alloy/config.alloy
+   networks:
+     - testnet
+
+  prometheus:
+    image: prom/prometheus:v3.3.0
+    hostname: prometheus
+    command:
+      --config.file=/etc/prometheus/prometheus.yml
+      --storage.tsdb.path=/prometheus
+      --web.console.libraries=/usr/share/prometheus/console_libraries
+      --web.console.templates=/usr/share/prometheus/consoles
+      --web.enable-remote-write-receiver
+    ports:
+      - "9090:9090"
+    networks:
+      - testnet
+
+networks:
+  testnet:
