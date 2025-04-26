@@ -1,4 +1,4 @@
-TAG := v0.1.1
+TAG := v0.1.2
 GIT_HOST := git.mylogic.dev
 GIT_PATH := homelab/go-arcs
 
