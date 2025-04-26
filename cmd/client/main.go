@@ -24,7 +24,7 @@ var (
 		},
 		"addr": {
 			Name:    "host",
-			Value:   "172.17. 0.1",
+			Value:   "172.17.0.1",
 			Message: "The IP Address to bind to, if none specified uses default docker host address",
 		},
 		// args.Flag{
