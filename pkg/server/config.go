@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strings"
 
 	"connectrpc.com/connect"
@@ -42,9 +43,10 @@ func (s *Server) GetConfig(
 	}
 
 	configs := s.configs.GetByAttributes(ctx, attributes)
-	config, err := getCollectorConfig(ctx, configs)
+
+	config, err := getCollectorConfig(ctx, configs, req.Header())
 	if err != nil {
-		return nil, errors.Join(ErrGetConfig)
+		return nil, errors.Join(ErrGetConfig, err)
 	}
 	newHash := store.Hash([]byte(config))
 	modified := currentHash == newHash
@@ -62,13 +64,14 @@ func (s *Server) GetConfig(
 func getCollectorConfig(
 	ctx context.Context,
 	configs []config.Config,
+	header http.Header,
 ) (string, error) {
 	eg, getCtx := errgroup.WithContext(ctx)
 	results := make([]string, len(configs))
 	for i, config := range configs {
 		i, config := i, config // https://golang.org/doc/faq#closures_and_goroutines
 		eg.Go(func() error {
-			content, err := config.Content(getCtx)
+			content, err := config.Content(getCtx, header)
 			if err == nil {
 				results[i] = content
 			}

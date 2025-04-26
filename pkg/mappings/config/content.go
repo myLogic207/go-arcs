@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -59,12 +60,28 @@ func fileHandler(ctx context.Context, path string) ([]byte, error) {
 	return content, ctx.Err()
 }
 
-func ftpHandler(ctx context.Context, path string) ([]byte, error) {
-	return nil, nil
-}
+// func ftpHandler(ctx context.Context, path string) ([]byte, error) {
+// 	return nil, nil
+// }
 
-func httpHandler(ctx context.Context, path string) ([]byte, error) {
-	return nil, nil
+func httpHandler(ctx context.Context, path string, headers http.Header) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = headers
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	content, err := ioRead(res.Body)
+	if err != nil {
+		return nil, errors.Join(ErrGetContent, err)
+	}
+	if err != res.Body.Close() {
+		return nil, err
+	}
+	return content, nil
 }
 
 func ioRead(input io.Reader) ([]byte, error) {
