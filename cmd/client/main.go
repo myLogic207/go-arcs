@@ -35,6 +35,8 @@ var (
 	}
 )
 
+const ID = "ARCS-Client"
+
 type action byte
 
 const (
@@ -96,6 +98,22 @@ func parseAttributes(raw string) (map[string]string, error) {
 	return attributes, nil
 }
 
+func registerClient(ctx context.Context, client collectorv1connect.CollectorServiceClient) error {
+	_, err := client.RegisterCollector(ctx, connect.NewRequest(&collectorv1.RegisterCollectorRequest{
+		Id:              ID,
+		LocalAttributes: nil,
+		Name:            ID,
+	}))
+	return err
+}
+
+func unregisterClient(ctx context.Context, client collectorv1connect.CollectorServiceClient) error {
+	_, err := client.UnregisterCollector(ctx, connect.NewRequest(&collectorv1.UnregisterCollectorRequest{
+		Id: ID,
+	}))
+	return err
+}
+
 func main() {
 	ctx := context.Background()
 	flags, unnamed := args.Init(customFlags)
@@ -112,6 +130,11 @@ func main() {
 		http.DefaultClient,
 		address,
 	)
+
+	if err := registerClient(ctx, collectorClient); err != nil {
+		log.Fatal(err)
+	}
+	defer unregisterClient(ctx, collectorClient)
 
 	action, rawArguments := parseArgs(unnamed)
 	log.Printf("calling %v, executing %v with %+v", address, action, rawArguments)
@@ -146,7 +169,7 @@ func main() {
 		res, err := collectorClient.GetConfig(
 			ctx,
 			connect.NewRequest(&collectorv1.GetConfigRequest{
-				Id:              "ARCS-Client",
+				Id:              ID,
 				LocalAttributes: attributes,
 			}),
 		)
