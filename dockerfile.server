@@ -1,0 +1,12 @@
+FROM golang:1.24.2-alpine AS server-build
+COPY go.mod go.sum ./
+COPY . ./
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go-arcs-server ./cmd/server/main.go
+
+FROM alpine:3.21
+WORKDIR /tmp
+RUN apk add --no-cache ca-certificates
+COPY --from=server-build /go-arcs-server /arcs
+EXPOSE 8080
+CMD ["/arcs"]
