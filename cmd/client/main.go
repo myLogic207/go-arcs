@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	serverv1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
-	"git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1/serverv1connect"
-	"git.mylogic.dev/homelab/go-arcs/internal/args"
 	collectorv1 "github.com/grafana/alloy-remote-config/api/gen/proto/go/collector/v1"
 	"github.com/grafana/alloy-remote-config/api/gen/proto/go/collector/v1/collectorv1connect"
+	serverv1 "github.com/myLogic207/go-arcs/api/gen/proto/go/server/v1"
+	"github.com/myLogic207/go-arcs/api/gen/proto/go/server/v1/serverv1connect"
+	"github.com/myLogic207/go-arcs/internal/args"
 )
 
 var (

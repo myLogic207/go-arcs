@@ -6,9 +6,9 @@ import (
 	"maps"
 
 	"connectrpc.com/connect"
-	serverv1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
-	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/collector"
 	collectorv1 "github.com/grafana/alloy-remote-config/api/gen/proto/go/collector/v1"
+	serverv1 "github.com/myLogic207/go-arcs/api/gen/proto/go/server/v1"
+	"github.com/myLogic207/go-arcs/pkg/mappings/collector"
 )
 
 var (

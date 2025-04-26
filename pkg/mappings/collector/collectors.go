@@ -1,7 +1,7 @@
 package collector
 
 import (
-	"git.mylogic.dev/homelab/go-arcs/pkg/store"
+	"github.com/myLogic207/go-arcs/pkg/store"
 )
 
 type Collector interface {

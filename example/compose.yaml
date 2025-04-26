@@ -6,7 +6,7 @@ include:
 
 services:
   # arcs:
-  #   image: git.mylogic.dev/homelab/go-arcs/server:latest
+  #   image: github.com/myLogic207/go-arcs/server:latest
   #   hostname: arcs
   #   ports:
   #     - "8080:8080"

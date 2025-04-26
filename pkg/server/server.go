@@ -5,11 +5,11 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-	"git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1/serverv1connect"
-	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/collector"
-	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/config"
-	"git.mylogic.dev/homelab/go-arcs/pkg/store"
 	"github.com/grafana/alloy-remote-config/api/gen/proto/go/collector/v1/collectorv1connect"
+	"github.com/myLogic207/go-arcs/api/gen/proto/go/server/v1/serverv1connect"
+	"github.com/myLogic207/go-arcs/pkg/mappings/collector"
+	"github.com/myLogic207/go-arcs/pkg/mappings/config"
+	"github.com/myLogic207/go-arcs/pkg/store"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

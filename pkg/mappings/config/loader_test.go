@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"git.mylogic.dev/homelab/go-arcs/pkg/store"
+	"github.com/myLogic207/go-arcs/pkg/store"
 	"github.com/stretchr/testify/assert"
 )
 

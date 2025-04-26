@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
+	v1 "github.com/myLogic207/go-arcs/api/gen/proto/go/server/v1"
 	http "net/http"
 	strings "strings"
 )

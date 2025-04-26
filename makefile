@@ -1,6 +1,6 @@
 TAG := v0.1.2
-GIT_HOST := git.mylogic.dev
-GIT_PATH := homelab/go-arcs
+GIT_HOST := ghcr.io
+GIT_PATH := mylogic207/go-arcs
 
 _VERSION   := $(subst ., ,$(TAG))
 TAG_MAJOR := $(word 1,$(_VERSION))

@@ -1,4 +1,4 @@
-module git.mylogic.dev/homelab/go-arcs
+module github.com/myLogic207/go-arcs
 
 go 1.24.2
 

@@ -14,11 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	"git.mylogic.dev/homelab/go-arcs/internal/args"
-	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/collector"
-	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/config"
-	"git.mylogic.dev/homelab/go-arcs/pkg/server"
-	"git.mylogic.dev/homelab/go-arcs/pkg/store"
+	"github.com/myLogic207/go-arcs/internal/args"
+	"github.com/myLogic207/go-arcs/pkg/mappings/collector"
+	"github.com/myLogic207/go-arcs/pkg/mappings/config"
+	"github.com/myLogic207/go-arcs/pkg/server"
+	"github.com/myLogic207/go-arcs/pkg/store"
 )
 
 var (

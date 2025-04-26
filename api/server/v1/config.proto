@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package server.v1;
 
-option go_package = "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1;serverv1";
+option go_package = "github.com/myLogic207/go-arcs/api/gen/proto/go/server/v1;serverv1";
 
 // GetListRequest is the request message to get a list of registered objects by attributes
 message ListRequest {
