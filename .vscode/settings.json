@@ -2,6 +2,10 @@
     "cSpell.words": [
         "opsplane",
         "remotecfg",
-        "serverv"
+        "serverv",
+        "collectorv",
+        "connectrpc",
+        "protoc",
+        "GOARCH"
     ]
 }
