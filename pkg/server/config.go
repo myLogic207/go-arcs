@@ -3,11 +3,11 @@ package server
 import (
 	"context"
 	"errors"
-	"log"
 	"strings"
 
 	"connectrpc.com/connect"
 	serverv1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
+	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/config"
 	"git.mylogic.dev/homelab/go-arcs/pkg/store"
 	collectorv1 "github.com/grafana/alloy-remote-config/api/gen/proto/go/collector/v1"
 	"golang.org/x/sync/errgroup"
@@ -17,12 +17,10 @@ func (s *Server) GetConfig(
 	ctx context.Context,
 	req *connect.Request[collectorv1.GetConfigRequest],
 ) (*connect.Response[collectorv1.GetConfigResponse], error) {
-	id := req.Msg.GetId()
+	// id := req.Msg.GetId()
 	currentHash := req.Msg.GetHash()
 	attributes := req.Msg.GetLocalAttributes()
 	configs := s.configs.GetByAttributes(ctx, attributes)
-
-	log.Printf("Client %v send configuration request %+v, found %v matching configs", id, attributes, len(configs))
 
 	eg, getCtx := errgroup.WithContext(ctx)
 	results := make([]string, len(configs))
@@ -59,8 +57,15 @@ func (s *Server) ListConfigs(
 	stream *connect.ServerStream[serverv1.GetConfigResponse],
 ) error {
 	attributes := req.Msg.GetLocalAttributes()
-	log.Printf("List config request received %+v", attributes)
-	configs := s.configs.GetByAttributes(ctx, attributes)
+
+	var configs []config.Config
+	if attributes != nil || len(attributes) > 0 {
+		configs = s.configs.GetByAttributes(ctx, attributes)
+	} else {
+		// if no attributes specified, return all configs
+		configs = s.configs.List(ctx)
+	}
+
 	for _, config := range configs {
 		stream.Send(&serverv1.GetConfigResponse{
 			Source:          config.Source(),

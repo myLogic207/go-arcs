@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"errors"
-	"log"
 
 	"connectrpc.com/connect"
 	serverv1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
@@ -36,7 +35,15 @@ func (s *Server) ListCollectors(
 	stream *connect.ServerStream[serverv1.GetCollectorsResponse],
 ) error {
 	attributes := req.Msg.GetLocalAttributes()
-	for _, col := range s.collectors.GetByAttributes(ctx, attributes) {
+
+	var collectors []collector.Collector
+	if attributes != nil || len(attributes) > 0 {
+		collectors = s.collectors.GetByAttributes(ctx, attributes)
+	} else {
+		collectors = s.collectors.List(ctx)
+	}
+
+	for _, col := range collectors {
 		stream.Send(&serverv1.GetCollectorsResponse{
 			Id:              col.ID(),
 			LocalAttributes: col.Attributes(),
@@ -56,7 +63,7 @@ func (s *Server) RegisterCollector(
 		req.Msg.GetLocalAttributes(),
 		"",
 	)
-	log.Printf("collector registration request %v received from %v", col.ID(), col.Name())
+
 	if s.collectors.Get(ctx, col.ID()) != nil {
 		return nil, ErrCollectorExists
 	}
@@ -72,7 +79,6 @@ func (s *Server) UnregisterCollector(
 	req *connect.Request[collectorv1.UnregisterCollectorRequest],
 ) (*connect.Response[collectorv1.UnregisterCollectorResponse], error) {
 	collectorID := req.Msg.GetId()
-	log.Printf("collector unregistration request %v received", collectorID)
 
 	_, err := s.collectors.Remove(ctx, collectorID)
 	if err != nil {
