@@ -12,9 +12,10 @@ import (
 )
 
 var (
-	ErrCollectorAdd    = errors.New("could not add collector")
-	ErrCollectorExists = errors.New("ID is already registered")
-	ErrCollectorRemove = errors.New("could not remove collector")
+	ErrCollectorAdd           = errors.New("could not add collector")
+	ErrCollectorExists        = errors.New("ID is already registered")
+	ErrCollectorRemove        = errors.New("could not remove collector")
+	ErrCollectorNotRegistered = errors.New("collector not registered")
 )
 
 func (s *Server) GetCollector(

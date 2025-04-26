@@ -19,9 +19,24 @@ func (s *Server) GetConfig(
 ) (*connect.Response[collectorv1.GetConfigResponse], error) {
 	logRequest(req)
 	// id := req.Msg.GetId()
-	currentHash := req.Msg.GetHash()
 	attributes := req.Msg.GetLocalAttributes()
 	configs := s.configs.GetByAttributes(ctx, attributes)
+	collectorID := req.Msg.GetId()
+
+	collector := s.collectors.Get(ctx, collectorID)
+	if collector == nil {
+		return nil, ErrCollectorNotRegistered
+	}
+
+	currentHash := ""
+	if reqHash := req.Msg.GetHash(); reqHash != "" {
+		currentHash = reqHash
+	} else if hash := collector.GetHash(); hash != "" {
+		currentHash = hash
+	} else if hash == "" && reqHash != "" {
+		collector.SetHash(reqHash)
+	}
+	// check if collector is registered
 
 	eg, getCtx := errgroup.WithContext(ctx)
 	results := make([]string, len(configs))
@@ -44,11 +59,15 @@ func (s *Server) GetConfig(
 	}
 	resolvedConfig := strings.Join(results, " ")
 	newHash := store.Hash([]byte(resolvedConfig))
+	modified := currentHash == newHash
+	if modified {
+		collector.SetHash(newHash)
+	}
 	// globalStorage.Set(collector.id, resolvedConfig.String())
 	return connect.NewResponse(&collectorv1.GetConfigResponse{
 		Content:     resolvedConfig,
 		Hash:        newHash,
-		NotModified: currentHash == newHash,
+		NotModified: modified,
 	}), nil
 }
 
