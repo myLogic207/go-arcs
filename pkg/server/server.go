@@ -1,8 +1,10 @@
 package server
 
 import (
+	"log"
 	"net/http"
 
+	"connectrpc.com/connect"
 	"git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1/serverv1connect"
 	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/collector"
 	"git.mylogic.dev/homelab/go-arcs/pkg/mappings/config"
@@ -45,4 +47,14 @@ func New(addr string, configs config.Store, collectors collector.Store) *Server 
 	}
 
 	return server
+}
+
+func logRequest(
+	req connect.AnyRequest,
+) {
+	log.Printf(
+		"Request to %v received from %v",
+		req.Spec().Procedure,
+		req.Peer().Addr,
+	)
 }

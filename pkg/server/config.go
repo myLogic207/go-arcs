@@ -17,6 +17,7 @@ func (s *Server) GetConfig(
 	ctx context.Context,
 	req *connect.Request[collectorv1.GetConfigRequest],
 ) (*connect.Response[collectorv1.GetConfigResponse], error) {
+	logRequest(req)
 	// id := req.Msg.GetId()
 	currentHash := req.Msg.GetHash()
 	attributes := req.Msg.GetLocalAttributes()
@@ -56,6 +57,7 @@ func (s *Server) ListConfigs(
 	req *connect.Request[serverv1.ListRequest],
 	stream *connect.ServerStream[serverv1.GetConfigResponse],
 ) error {
+	logRequest(req)
 	attributes := req.Msg.GetLocalAttributes()
 
 	var configs []config.Config
