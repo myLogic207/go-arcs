@@ -1,10 +1,8 @@
-FROM golang:1.24.2-alpine AS client-build
-# WORKDIR /bin
+FROM golang:1.24.2 AS client-build
 COPY . ./
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go-arcs-client ./cmd/client/main.go
 
-FROM alpine:3.21
-# RUN apk add --no-cache ca-certificates
+FROM scratch
 COPY --from=client-build /go-arcs-client /client
 ENTRYPOINT ["/client"]

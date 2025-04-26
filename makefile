@@ -1,4 +1,4 @@
-TAG := v0.1.2
+TAG := v0.1.3
 GIT_HOST := ghcr.io
 GIT_PATH := mylogic207/go-arcs
 
