@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"maps"
 
 	"connectrpc.com/connect"
 	serverv1 "git.mylogic.dev/homelab/go-arcs/api/gen/proto/go/server/v1"
@@ -67,12 +68,18 @@ func (s *Server) RegisterCollector(
 		"",
 	)
 
-	if s.collectors.Get(ctx, col.ID()) != nil {
-		return nil, ErrCollectorExists
-	}
-	_, err := s.collectors.Set(ctx, col)
-	if err != nil {
-		return nil, errors.Join(ErrCollectorAdd, err)
+	if existing := s.collectors.Get(ctx, col.ID()); existing != nil {
+		if col.ID() != existing.ID() ||
+			col.Name() != existing.Name() ||
+			!maps.Equal(col.Attributes(), existing.Attributes()) {
+			return nil, ErrCollectorExists
+		}
+		// collector already registered, nothing to do
+	} else {
+		_, err := s.collectors.Set(ctx, col)
+		if err != nil {
+			return nil, errors.Join(ErrCollectorAdd, err)
+		}
 	}
 	return connect.NewResponse(&collectorv1.RegisterCollectorResponse{}), nil
 }
